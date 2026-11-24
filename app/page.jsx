@@ -1,4 +1,5 @@
 import { BookingButton, BookingProvider, HeroBookingActions } from './booking.jsx';
+import CustomerReviews from './customer-reviews.jsx';
 import StudioCarousel from './studio-carousel.jsx';
 import { defaultBookingTimeZone } from '../lib/booking-fields.js';
 
@@ -123,6 +124,8 @@ export default function Home() {
             <p>狗狗请佩戴牵引绳，猫咪请放在透气的外出包里。有皮肤敏感、怕吹风或曾在洗护中出现强烈应激，请提前告知。</p>
           </details>
         </section>
+
+        <CustomerReviews />
 
         <section className="wrap closing" aria-labelledby="closing-title">
           <div><h2 id="closing-title">预约下一次洗护</h2><p>选好服务，填写方便到店的日期和时间。</p></div>
