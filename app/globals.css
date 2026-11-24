@@ -108,7 +108,13 @@ summary::after { content: "+"; color: var(--pink-dark); font-size: 22px; line-he
 details[open] summary::after { content: "−"; }
 details p { color: var(--muted); padding: 0 3px 18px; }
 .section.reviews { padding-top: 8px; }
-.review-card { margin: 0; }
+.review-carousel { max-width: 780px; margin-inline: auto; }
+.review-slides { display: grid; }
+.review-card { grid-area: 1 / 1; margin: 0; }
+.review-card[aria-hidden="true"] { visibility: hidden; }
+.studio-controls.review-controls { padding: 12px 0 0; }
+.review-controls .studio-dot { width: clamp(18px, 6vw, 30px); }
+.review-controls .studio-dot[aria-current="true"]::after { max-width: 80%; }
 .review-stars { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--pink-dark); }
 .review-stars > [aria-hidden] { font-size: 19px; letter-spacing: .1em; }
 .review-score, .review-card figcaption span { color: var(--muted); font-size: 13px; }
