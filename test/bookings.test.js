@@ -24,7 +24,7 @@ test('validates bookings before sending email', async (t) => {
   assert.equal(send.mock.callCount(), 0);
 });
 
-test('uses the same email idempotency key after failure and sends to the owner', async (t) => {
+test('uses the same email idempotency key after failure and sends to the default recipient', async (t) => {
   const env = ['RESEND_API_KEY', 'BOOKING_FROM_EMAIL', 'BOOKING_OWNER_EMAIL'];
   const previous = Object.fromEntries(env.map((name) => [name, process.env[name]]));
   t.after(() => {
@@ -48,7 +48,7 @@ test('uses the same email idempotency key after failure and sends to the owner',
     assert.equal(url, 'https://api.resend.com/emails');
     assert.equal(new Headers(options.headers).get('Idempotency-Key'), `booking/${id}`);
     const email = JSON.parse(options.body);
-    assert.deepEqual(email.to, ['addlong919@icloud.com']);
+    assert.deepEqual(email.to, ['bookings@pet-care.invalid']);
     assert.equal(email.from, 'appointments@example.com');
     for (const value of [fields.service, fields.pet, fields.date, id, '+8613800138000']) {
       assert.ok(email.text.includes(value));

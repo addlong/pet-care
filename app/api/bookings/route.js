@@ -2,7 +2,7 @@ import { bookingToday, defaultBookingTimeZone, pets, services } from '../../../l
 
 export const runtime = 'nodejs';
 
-const defaultOwnerEmail = 'addlong919@icloud.com';
+const defaultOwnerEmail = 'bookings@pet-care.invalid';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const dateFormat = /^\d{4}-\d{2}-\d{2}$/;
 const phoneFormat = /^\+?[0-9 ()-]{7,30}$/;

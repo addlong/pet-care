@@ -18,7 +18,7 @@ npm run dev
 | 环境变量 | 用途 |
 | --- | --- |
 | `BOOKING_TIME_ZONE` | 门店 IANA 时区，默认 `Asia/Shanghai` |
-| `BOOKING_OWNER_EMAIL` | 店主收件地址，默认 `addlong919@icloud.com` |
+| `BOOKING_OWNER_EMAIL` | 预约邮件收件地址，默认占位邮箱 `bookings@pet-care.invalid`，正式使用时请设置为可收信的地址 |
 | `BOOKING_FROM_EMAIL` | Resend 已验证域名下的发件地址 |
 | `RESEND_API_KEY` | Resend 发送密钥 |
 
