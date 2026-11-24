@@ -1,4 +1,4 @@
-import { bookingToday, defaultBookingTimeZone, pets, services } from '../../../lib/booking-fields.js';
+import { bookingClock, defaultBookingTimeZone, isBookingTime, pets, services } from '../../../lib/booking-fields.js';
 
 export const runtime = 'nodejs';
 
@@ -32,7 +32,7 @@ export async function POST(request) {
     return error('请检查表单后重试。', 400);
   }
 
-  const { service, pet, date, phone, id } = data ?? {};
+  const { service, pet, date, time, phone, id } = data ?? {};
   if (!services.includes(service) || !pets.includes(pet) || typeof id !== 'string' || !uuid.test(id)) {
     return error('请选择洗护服务和宠物种类。', 400);
   }
@@ -47,15 +47,21 @@ export async function POST(request) {
   if (!parsedDate || !Number.isFinite(+parsedDate) || parsedDate.toISOString().slice(0, 10) !== date) {
     return error('请选择有效的意向日期。', 400);
   }
+  if (!isBookingTime(time)) {
+    return error('请选择有效的期望到店时间。', 400);
+  }
   const timeZone = process.env.BOOKING_TIME_ZONE?.trim() || defaultBookingTimeZone;
-  let today;
+  let shopNow;
   try {
-    today = bookingToday(timeZone);
+    shopNow = bookingClock(timeZone);
   } catch {
     return error(sendFailed, 503);
   }
-  if (date < today) {
+  if (date < shopNow.date) {
     return error('请选择门店当天或之后的日期。', 400);
+  }
+  if (date === shopNow.date && time < shopNow.time) {
+    return error('请选择今天尚未过去的到店时间。', 400);
   }
 
   const apiKey = process.env.RESEND_API_KEY?.trim();
@@ -87,12 +93,13 @@ export async function POST(request) {
       body: JSON.stringify({
         from,
         to: [to],
-        subject: `奥利奥之家 · 新预约意向 · ${date}`,
+        subject: `奥利奥之家 · 新预约意向 · ${date} ${time}`,
         text: [
           `预约编号：${id}`,
           `洗护服务：${service}`,
           `宠物种类：${pet}`,
           `意向日期：${date}`,
+          `期望到店时间：${time}（门店当地时间）`,
           `联系电话：${contact}`,
         ].join('\n'),
       }),

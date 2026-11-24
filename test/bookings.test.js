@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { POST } from '../app/api/bookings/route.js';
 
 const id = '534ce004-bda8-4120-bfad-49dab63b6a0c';
-const fields = { service: '基础洗护', pet: '猫咪', date: '2099-03-01', phone: '+86 138 0013 8000', id };
+const fields = { service: '基础洗护', pet: '猫咪', date: '2099-03-01', time: '14:30', phone: '+86 138 0013 8000', id };
 
 function request(body = fields) {
   return new Request('http://localhost/api/bookings', {
@@ -20,6 +20,25 @@ test('validates bookings before sending email', async (t) => {
     { date: '2099-02-29' }, { phone: '123' }, { phone: '13800138000\nBCC:x' }, { id: 'invalid' },
   ]) {
     assert.equal((await POST(request({ ...fields, ...changes }))).status, 400);
+  }
+  assert.equal(send.mock.callCount(), 0);
+});
+
+test('requires a valid appointment time and rejects elapsed times in the shop time zone', async (t) => {
+  const send = t.mock.method(globalThis, 'fetch');
+  const originalTimeZone = process.env.BOOKING_TIME_ZONE;
+  process.env.BOOKING_TIME_ZONE = 'Asia/Shanghai';
+  t.after(() => {
+    if (originalTimeZone === undefined) delete process.env.BOOKING_TIME_ZONE;
+    else process.env.BOOKING_TIME_ZONE = originalTimeZone;
+  });
+  // 00:30 on March 1 at the shop, while UTC is still February 28.
+  t.mock.timers.enable({ apis: ['Date'], now: new Date('2099-02-28T16:30:00Z') });
+
+  for (const time of [undefined, '', '9:30', '24:00', '10:60', '08:00\n', '00:29']) {
+    const response = await POST(request({ ...fields, time }));
+    assert.equal(response.status, 400, JSON.stringify(time));
+    assert.match((await response.json()).message, /时间/);
   }
   assert.equal(send.mock.callCount(), 0);
 });
@@ -50,6 +69,7 @@ test('uses the same email idempotency key after failure and sends to the default
     const email = JSON.parse(options.body);
     assert.deepEqual(email.to, ['bookings@pet-care.invalid']);
     assert.equal(email.from, 'appointments@example.com');
+    assert.ok(email.text.includes(`期望到店时间：${fields.time}（门店当地时间）`));
     for (const value of [fields.service, fields.pet, fields.date, id, '+8613800138000']) {
       assert.ok(email.text.includes(value));
     }

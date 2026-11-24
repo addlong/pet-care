@@ -1,4 +1,4 @@
-import { BookingButton, BookingProvider } from './booking.jsx';
+import { BookingButton, BookingProvider, HeroBookingActions } from './booking.jsx';
 import StudioCarousel from './studio-carousel.jsx';
 import { defaultBookingTimeZone } from '../lib/booking-fields.js';
 
@@ -46,10 +46,7 @@ export default function Home() {
               <div className="eyebrow"><svg className="icon" aria-hidden="true"><use href="#spark"/></svg> 狗狗及猫咪洗护</div>
               <h1 id="hero-title">洗个舒服澡，<span>蓬松地回家。</span></h1>
               <p>从洗澡吹干到剪毛修爪，按毛孩子的性格和毛发状况安排护理。怕水、怕吹风，也可以慢慢来。</p>
-              <div className="hero-actions">
-                <BookingButton className="btn">预约洗护 <svg className="icon" aria-hidden="true"><use href="#arrow"/></svg></BookingButton>
-                <a className="btn btn-light" href="#services">查看服务与价格</a>
-              </div>
+              <HeroBookingActions />
             </div>
             <figure className="hero-photo">
               <img src="/images/hero.jpg" width="1152" height="1260" alt="一只头顶泡泡的杏色贵宾犬趴在粉色浴缸边" />
@@ -104,7 +101,7 @@ export default function Home() {
           <div className="wrap">
             <div className="section-head"><h2 id="visit-title">到店流程</h2></div>
             <ol className="cards steps">
-              <li><span className="step-num">01</span><h3>选服务与日期</h3><p>预约时说明宠物种类，方便安排合适的时段。</p></li>
+              <li><span className="step-num">01</span><h3>选服务与到店时间</h3><p>预约时说明宠物种类，方便安排合适的时段。</p></li>
               <li><span className="step-num">02</span><h3>到店确认方案</h3><p>检查毛发和皮肤状况，确认护理项目与价格。</p></li>
               <li><span className="step-num">03</span><h3>洗护后接回家</h3><p>护理结束后查看修剪效果，了解在家怎么梳理。</p></li>
             </ol>
@@ -128,7 +125,7 @@ export default function Home() {
         </section>
 
         <section className="wrap closing" aria-labelledby="closing-title">
-          <div><h2 id="closing-title">预约下一次洗护</h2><p>选好服务，选一个方便的日期。</p></div>
+          <div><h2 id="closing-title">预约下一次洗护</h2><p>选好服务，填写方便到店的日期和时间。</p></div>
           <BookingButton className="btn">预约洗护 <svg className="icon" aria-hidden="true"><use href="#arrow"/></svg></BookingButton>
         </section>
       </main>

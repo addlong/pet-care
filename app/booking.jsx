@@ -2,18 +2,37 @@
 
 import { createContext, useContext, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { bookingToday, pets, services } from '../lib/booking-fields.js';
+import { bookingClock, isBookingTime, pets, services } from '../lib/booking-fields.js';
 
 const BookingContext = createContext(null);
 const storageKey = 'zhuazhua-booking';
 const sendFailed = '预约邮件暂时无法发送，请稍后重试。';
 
-export function BookingButton({ service, children, ...props }) {
+export function BookingButton({ service, preferredTime, children, ...props }) {
   const openBooking = useContext(BookingContext);
   return (
-    <button {...props} type="button" onClick={(event) => openBooking(event.currentTarget, service)}>
+    <button {...props} type="button" onClick={(event) => openBooking(event.currentTarget, service, preferredTime)}>
       {children}
     </button>
+  );
+}
+
+export function HeroBookingActions() {
+  const [preferredTime, setPreferredTime] = useState('');
+
+  return (
+    <>
+      <div className="hero-actions">
+        <BookingButton className="btn" preferredTime={preferredTime}>
+          预约洗护 <svg className="icon" aria-hidden="true"><use href="#arrow" /></svg>
+        </BookingButton>
+        <a className="btn btn-light" href="#services">查看服务与价格</a>
+      </div>
+      <label className="hero-arrival">
+        期望到店时间
+        <input type="time" value={preferredTime} onChange={(event) => setPreferredTime(event.target.value)} />
+      </label>
+    </>
   );
 }
 
@@ -27,7 +46,7 @@ export function BookingProvider({ children, timeZone }) {
   const [sent, setSent] = useState(false);
   const [status, setStatus] = useState('');
 
-  function openBooking(button, preferredService) {
+  function openBooking(button, preferredService, preferredTime) {
     const bookingForm = form.current;
     bookingForm.reset();
     flushSync(() => {
@@ -39,8 +58,11 @@ export function BookingProvider({ children, timeZone }) {
     const service = bookingForm.elements.namedItem('service');
     const pet = bookingForm.elements.namedItem('pet');
     const date = bookingForm.elements.namedItem('date');
+    const time = bookingForm.elements.namedItem('time');
+    let shopNow;
     try {
-      date.min = bookingToday(timeZone);
+      shopNow = bookingClock(timeZone);
+      date.min = shopNow.date;
     } catch {
       date.removeAttribute('min');
     }
@@ -50,13 +72,19 @@ export function BookingProvider({ children, timeZone }) {
       if (saved) {
         if (services.includes(saved.service)) service.value = saved.service;
         if (pets.includes(saved.pet)) pet.value = saved.pet;
-        if (typeof saved.date === 'string' && saved.date >= date.min) date.value = saved.date;
+        if (typeof saved.date === 'string' && saved.date >= date.min) {
+          date.value = saved.date;
+          if (date.value && isBookingTime(saved.time) && (date.value !== shopNow?.date || saved.time >= shopNow.time)) {
+            time.value = saved.time;
+          }
+        }
       }
     } catch {
       // Browsers with storage disabled can still submit a booking.
     }
 
     if (preferredService) service.value = preferredService;
+    if (isBookingTime(preferredTime)) time.value = preferredTime;
     dialog.current.showModal();
     service.focus();
   }
@@ -71,6 +99,7 @@ export function BookingProvider({ children, timeZone }) {
       service: formData.get('service'),
       pet: formData.get('pet'),
       date: formData.get('date'),
+      time: formData.get('time'),
     };
     const booking = { ...draft, phone: formData.get('phone').trim() };
     const fingerprint = JSON.stringify(booking);
@@ -133,7 +162,7 @@ export function BookingProvider({ children, timeZone }) {
             ×
           </button>
         </div>
-        <p className="form-note" id="booking-note">提交后，店主会通过你填写的手机号联系你，确认到店时间。</p>
+        <p className="form-note" id="booking-note">请按门店当地时间填写，店主会通过手机号与你确认到店时间。</p>
         <form ref={form} id="booking-form" onSubmit={submitBooking}>
           <label>洗护服务
             <select name="service" required disabled={pending || sent}>
@@ -149,6 +178,9 @@ export function BookingProvider({ children, timeZone }) {
           </label>
           <label>意向日期
             <input type="date" name="date" required disabled={pending || sent} />
+          </label>
+          <label>期望到店时间
+            <input type="time" name="time" required disabled={pending || sent} />
           </label>
           <label>手机号
             <input type="tel" name="phone" autoComplete="tel" required minLength={7} maxLength={30} disabled={pending || sent} />

@@ -50,6 +50,7 @@ nav a:hover, .text-link:hover { color: var(--pink-dark); }
 .hero h1 span { display: block; color: var(--pink); }
 .hero-copy > p { max-width: 365px; color: var(--muted); font-size: 16px; line-height: 1.9; text-wrap: pretty; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.hero-arrival { display: grid; gap: 4px; width: min(190px, 100%); margin-top: 12px; font-size: 14px; font-weight: 600; }
 .hero-photo { position: relative; margin: 0; }
 .hero-photo img { width: 100%; height: auto; aspect-ratio: 1.28; object-fit: cover; object-position: center 52%; border-radius: 32px; background: #f6d2c8; }
 .benefits { padding: 17px 20px; margin: 34px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); background: #f9ede7; border-radius: 17px; list-style: none; }
